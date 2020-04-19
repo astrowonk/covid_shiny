@@ -75,16 +75,7 @@ inputPanel(
               min = 1, max = 14, value = 7, step = 1)
   )
 
-renderUI({
 
-
-selected_state <- input$state
-
-inputPanel(
-  selectInput("county", label = "County",
-              choices = (county_data %>% filter(state == selected_state))$county %>% unique %>% sort, selected = 'Henrico')
-)
-})
 
 ```
 
@@ -92,7 +83,24 @@ inputPanel(
 
 ```{r echo=FALSE}
 
+renderUI({
+  selected_state <- input$state
+
+  inputPanel(
+
+  
+  
+  selectInput("county", label = "County",
+              choices = (county_data %>% filter(state == selected_state))$county %>% unique %>% sort, selected = 'Henrico')
+)
+
+})
+
 renderPlotly({
+  
+  
+
+
   shiny::validate(need(input$county,message="Please wait.."))
 plot_county_roll(input$county,input$state,input$bins)
 })
