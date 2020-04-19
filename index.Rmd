@@ -1,0 +1,120 @@
+---
+title: "County Graph New Covid-19 Cases"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(shiny)
+library(dplyr)
+library(readr)
+library(ggpubr)
+library(ggplot2)
+library(RcppRoll)
+library(plotly)
+source('functions.R')
+```
+
+```{r get_data, include=FALSE}
+
+
+county_data <- read_csv(url("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"))
+county_data <- county_data %>% group_by(county,state) %>% mutate(case_growth = cases - lag(cases))
+
+state_data_nyt <- get_state_data_nyt()
+state_data_covid_tracking <- get_state_data_covid_tracking()
+
+max_date <- (as.Date(county_data$date) %>% na.omit %>% max)
+default_bin <- 7
+```
+
+NYT Data Last updated at *`r max_date`*. Datasets loaded directly from [NY Times](https://github.com/nytimes/covid-19-data) for county data. State data is either NYT or [Covid Tracking](https://covidtracking.com/api).
+
+Covid Tracking and the New York Times have significantly different total counts for some states, which can lead to very different case growth plots. Covid Tracking updates more frequently, but I am defaulting to NYT for state plots for the time being.
+
+```{r define_functions, echo=FALSE}
+
+plot_state <- function(state_data,my_state,roll_days) {
+
+  plot_data <- state_data %>% filter(state==my_state) %>% select (case_growth,state,date) %>% na.omit
+ plot_data <- plot_data[order(plot_data$date),]
+ plot_data <- plot_data %>% mutate(rolled_average_case_count = roll_mean(case_growth,roll_days,na.rm=TRUE,align ='right',fill=NA)) %>% select(date,rolled_average_case_count) %>% na.omit
+  ggbarplot(plot_data,'date','rolled_average_case_count', fill="dark blue",ggtheme = theme_minimal(),ylab='New Cases',xlab='Date',title=paste("All",my_state)) + theme(text = element_text(size=12))
+  }
+
+plot_county_roll <- function(my_county,my_state,roll_days) {
+    plot_data <- county_data %>% filter(county == my_county & state==my_state) %>% na.omit
+    
+    plot_data <- plot_data %>% mutate(rolled_average_case_count = roll_mean(case_growth,roll_days,na.rm=TRUE,align ='right',fill=NA)) %>% na.omit
+    
+    ggbarplot(plot_data,'date','rolled_average_case_count', fill="light blue",ggtheme = theme_minimal(),ylab='New Cases',xlab='Date',title = paste(my_county,my_state,sep=", ") ) + theme(text = element_text(size=12))
+}
+```
+
+# Covid 19 Plots {.tabset}
+
+## Case Growth Plots {.tabset}
+
+
+```{r echo=FALSE}
+
+inputPanel(
+  selectInput("data_source", label = "State Data Source",
+              choices = c("New York Times"="nyt","Covid Tracking"='covid_tracking'), selected = 'nyt'))
+
+
+
+inputPanel(
+  selectInput("state", label = "State",
+              choices = county_data$state %>% unique %>% sort, selected = 'Virginia'),
+  
+  sliderInput("bins", label = "days to bin",
+              min = 1, max = 14, value = 7, step = 1)
+  )
+
+renderUI({
+
+
+selected_state <- input$state
+
+inputPanel(
+  selectInput("county", label = "County",
+              choices = (county_data %>% filter(state == selected_state))$county %>% unique %>% sort, selected = 'Henrico')
+)
+})
+
+```
+
+### County Level
+
+```{r echo=FALSE}
+
+renderPlotly({
+  shiny::validate(need(input$county,message="Please wait.."))
+plot_county_roll(input$county,input$state,input$bins)
+})
+
+```
+
+### State Level
+``` {r state plots, echo=FALSE}
+
+
+
+renderPlotly({
+    if (input$data_source == 'nyt') {
+    state_data <- state_data_nyt
+  } else {
+    state_data <- state_data_covid_tracking
+  }
+  
+plot_state(state_data,input$state,input$bins)
+})
+
+```
+
+## State Per Capita Comparisons
+
+Work in Progress
+
