@@ -33,6 +33,8 @@ NYT Data Last updated at *`r max_date`*. Datasets loaded directly from [NY Times
 
 Covid Tracking and the New York Times have significantly different total counts for some states, which can lead to very different case growth plots. Covid Tracking updates more frequently, but I am defaulting to NYT for state plots for the time being.
 
+Covid Tracking includes a `positiveIncrease` column. For the NY Times data, this column is computed with a simple `mutate(case_growth = cases - lag(cases))` after sorting by date.
+
 ```{r define_functions, echo=FALSE}
 
 plot_state <- function(state_data,my_state,roll_days) {

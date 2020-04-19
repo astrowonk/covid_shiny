@@ -4,10 +4,11 @@ require(magrittr)
 require(jsonlite)
 get_state_data_nyt <- function() {
     state_data <- read_csv(url("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv"))
+    state_data$date <- state_data$date %>% as.Date()
+    state_data <- state_data[order(state_data$date),]
     state_data <- state_data %>%
         group_by(state) %>%
         mutate(case_growth = cases - lag(cases))
-    state_data$date <- state_data$date %>% as.Date()
     return(state_data)
 }
 
