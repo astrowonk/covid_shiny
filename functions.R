@@ -2,6 +2,25 @@ require(readr)
 require(dplyr)
 require(magrittr)
 require(jsonlite)
+require(RcppRoll)
+
+
+plot_state <- function(state_data,my_state,roll_days) {
+    
+    plot_data <- state_data %>% filter(state==my_state) %>% select (case_growth,state,date) %>% na.omit
+    plot_data <- plot_data[order(plot_data$date),]
+    plot_data <- plot_data %>% mutate(rolled_average_case_count = roll_mean(case_growth,roll_days,na.rm=TRUE,align ='right',fill=NA)) %>% select(date,rolled_average_case_count) %>% na.omit
+    ggbarplot(plot_data,'date','rolled_average_case_count', fill="dark blue",ggtheme = theme_minimal(),ylab='New Cases',xlab='Date',title=paste("All",my_state)) + theme(text = element_text(size=12))
+}
+
+plot_county_roll <- function(county_data, my_county,my_state,roll_days) {
+    plot_data <- county_data %>% filter(county == my_county & state==my_state) %>% na.omit
+    
+    plot_data <- plot_data %>% mutate(rolled_average_case_count = roll_mean(case_growth,roll_days,na.rm=TRUE,align ='right',fill=NA)) %>% na.omit
+    
+    ggbarplot(plot_data,'date','rolled_average_case_count', fill="light blue",ggtheme = theme_minimal(),ylab='New Cases',xlab='Date',title = paste(my_county,my_state,sep=", ") ) + theme(text = element_text(size=12))
+}
+
 get_state_data_nyt <- function() {
     state_data <- read_csv(url("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv"))
     state_data$date <- state_data$date %>% as.Date()
