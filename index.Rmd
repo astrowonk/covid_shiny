@@ -32,6 +32,8 @@ default_bin <- 7
 
 NYT Data Last updated at *`r max_date`*. Datasets loaded directly from [NY Times](https://github.com/nytimes/covid-19-data) for county data. State data is either NYT or [Covid Tracking](https://covidtracking.com/api).
 
+If you prefer the bar plots themselves made with rolling averages, uncheck the overplot box.
+
 # Covid 19 Plots {.tabset}
 
 ## Case Growth Plots {.tabset}
@@ -45,7 +47,9 @@ inputPanel(
               choices = county_data$state %>% unique %>% sort, selected = 'Virginia'),
   
   sliderInput("bins", label = "Days for Rolling Average",
-              min = 1, max = 14, value = 7, step = 1)
+              min = 1, max = 14, value = 7, step = 1),
+  
+  checkboxInput("overplot_rolled","Overplot Rolled Average",value=TRUE)
   )
 
 
@@ -75,10 +79,19 @@ renderPlotly({
 
 
   shiny::validate(need(input$county,message="Please wait.."))
-plot_county_roll(county_data, input$county,input$state,input$bins)
-})
+
+   if (input$overplot_rolled)
+  {
+    p <- plot_county2(county_data, input$county, input$state, input$bins)
+  } else {
+    p <- plot_county_roll(county_data, input$county, input$state, input$bins)
+  }
+  ggplotly(p) %>% layout(legend = list(orientation = "h", x = 0.1, y = .8))
+  })
 
 ```
+
+Putting some text here to test.
 
 ### State Level
 ``` {r state plots, echo=FALSE}
@@ -88,13 +101,19 @@ inputPanel(
               choices = c("New York Times"="nyt","Covid Tracking"='covid_tracking'), selected = 'nyt'))
 
 renderPlotly({
-    if (input$data_source == 'nyt') {
+  if (input$data_source == 'nyt') {
     state_data <- state_data_nyt
   } else {
     state_data <- state_data_covid_tracking
   }
-  
-plot_state(state_data,input$state,input$bins)
+  if (input$overplot_rolled)
+  {
+    pp <- plot_state2(state_data, input$state, input$bins)
+  } else {
+    pp <- plot_state(state_data, input$state, input$bins)
+  }
+    ggplotly(pp) %>% layout(legend = list(orientation = "h", x = 0.1, y = .8))
+
 })
 
 ```
