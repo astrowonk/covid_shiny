@@ -121,13 +121,13 @@ plot_county2 <-
                 )
             ) 
         legend_name <- paste(roll_days,'Day Average')
-        color_vector <- c('red')
+        color_vector <- c('purple')
         names(color_vector) <- c(legend_name)
         ggbarplot(
             plot_data,
             'date',
             'case_growth',
-            fill = "dark blue",
+            fill = "light blue",
             ggtheme = theme_minimal(),
             ylab = 'New Cases',
             xlab = 'Date',

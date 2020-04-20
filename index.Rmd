@@ -32,7 +32,7 @@ default_bin <- 7
 
 NYT Data Last updated at *`r max_date`*. Datasets loaded directly from [NY Times](https://github.com/nytimes/covid-19-data) for county data. State data is either NYT or [Covid Tracking](https://covidtracking.com/api).
 
-If you prefer the bar plots themselves made with rolling averages, uncheck the overplot box.
+To see bar plots themselves with rolling averages, and no overplotted line, uncheck the overplot box.
 
 # Covid 19 Plots {.tabset}
 
