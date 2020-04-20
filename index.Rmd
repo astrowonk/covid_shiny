@@ -61,11 +61,6 @@ plot_county_roll <- function(my_county,my_state,roll_days) {
 
 ```{r echo=FALSE}
 
-inputPanel(
-  selectInput("data_source", label = "State Data Source",
-              choices = c("New York Times"="nyt","Covid Tracking"='covid_tracking'), selected = 'nyt'))
-
-
 
 inputPanel(
   selectInput("state", label = "State",
@@ -110,7 +105,9 @@ plot_county_roll(input$county,input$state,input$bins)
 ### State Level
 ``` {r state plots, echo=FALSE}
 
-
+inputPanel(
+  selectInput("data_source", label = "State Data Source",
+              choices = c("New York Times"="nyt","Covid Tracking"='covid_tracking'), selected = 'nyt'))
 
 renderPlotly({
     if (input$data_source == 'nyt') {
