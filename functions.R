@@ -31,14 +31,14 @@ get_state_data_covid_tracking <- function() {
     return(state_json)
 }
 
-make_state_comparison <- function(state_data) {
+make_state_comparison <- function(state_data,tail_days,rounding_days) {
     my_list <- c()
-    state_data <- state_data %>% group_by(state) %>% mutate(case_growth_rolled_100K = roll_meanr(case_growth_per_100K,7)) %>% select(state,case_growth_rolled_100K,cases_per_100K,date) %>% na.omit()
+    state_data <- state_data %>% group_by(state) %>% mutate(case_growth_rolled_100K = roll_meanr(case_growth_per_100K,rounding_days)) %>% select(state,case_growth_rolled_100K,cases_per_100K,date) %>% na.omit()
     for (my_state in unique(state_data$state)) {
-        my_data <- filter(state_data, state == my_state ) %>% tail(14)
+        my_data <- filter(state_data, state == my_state ) %>% tail(tail_days)
         out <- lm(case_growth_rolled_100K ~ date,my_data %>% select(case_growth_rolled_100K,date)) %>% na.omit()
-        my_list[[my_state]] <- c(out$coefficients['date'],tail(my_data$cases_per_100K,1))
+        my_list[[my_state]] <- c(out$coefficients['date'],tail(my_data$case_growth_rolled_100K,1))
 
     }
-    return (my_list)
+    return (my_list %>% data.frame() %>% t() %>% data.frame() %>% data.table::setDT(keep.rownames = TRUE))
 }
