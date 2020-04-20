@@ -86,12 +86,12 @@ renderPlotly({
   } else {
     p <- plot_county_roll(county_data, input$county, input$state, input$bins)
   }
-  ggplotly(p) %>% layout(legend = list(orientation = "h", x = 0.1, y = .8))
+  ggplotly(p,height=500) %>% layout(legend = list(orientation = "h", x = 0.1, y = .8))
   })
 
 ```
 
-Putting some text here to test.
+This text appears to be getting covered up.
 
 ### State Level
 ``` {r state plots, echo=FALSE}
@@ -112,7 +112,7 @@ renderPlotly({
   } else {
     pp <- plot_state(state_data, input$state, input$bins)
   }
-    ggplotly(pp) %>% layout(legend = list(orientation = "h", x = 0.1, y = .8))
+    ggplotly(pp,height=500) %>% layout(legend = list(orientation = "h", x = 0.1, y = .8))
 
 })
 
