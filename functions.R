@@ -76,7 +76,7 @@ plot_county_roll <-
              roll_days) {
         plot_data <-
             county_data %>% filter(county == my_county &
-                                       state == my_state) %>% na.omit
+                                       state == my_state)
         
         plot_data <-
             plot_data %>% mutate(
@@ -87,7 +87,7 @@ plot_county_roll <-
                     align = 'right',
                     fill = NA
                 )
-            ) %>% na.omit
+            ) %>% select(rolled_average_case_count,date) %>% na.omit()
         
         ggbarplot(
             plot_data,
@@ -108,7 +108,7 @@ plot_county2 <-
              roll_days) {
         plot_data <-
             county_data %>% filter(county == my_county &
-                                       state == my_state) %>% na.omit
+                                       state == my_state) 
         
         plot_data <-
             plot_data %>% mutate(
@@ -119,7 +119,7 @@ plot_county2 <-
                     align = 'right',
                     fill = NA
                 )
-            ) 
+            ) %>% select(rolled_average_case_count,case_growth,date,state,county) 
         legend_name <- paste(roll_days,'Day Average')
         color_vector <- c('purple')
         names(color_vector) <- c(legend_name)
