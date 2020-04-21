@@ -120,6 +120,8 @@ renderPlotly({
 
 ## About
 
-Covid Tracking and the New York Times have significantly different total counts for some states, which can lead to very different case growth plots. Covid Tracking updates more frequently, but I am defaulting to NYT for state plots for the time being.
+Covid Tracking and the New York Times have significantly different total counts for some states, which can lead to very different case growth plots. Covid Tracking updates more frequently, but I am using the NYT as the default data source for state plots.
 
 Covid Tracking includes a `positiveIncrease` column. For the NY Times data, this column is computed with a simple `mutate(case_growth = cases - lag(cases))` after sorting by date.
+
+I do not believe there is any other useful county level data source than the [NY Times github](https://github.com/nytimes/covid-19-data). It is unclear where the [John Hopkins](https://github.com/CSSEGISandData/COVID-19) county data comes from and the data files that do exist have a difficult to parse format, with the [values in different columns for different dates](https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv)).
