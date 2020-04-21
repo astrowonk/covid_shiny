@@ -124,4 +124,5 @@ Covid Tracking and the New York Times have significantly different total counts 
 
 Covid Tracking includes a `positiveIncrease` column. For the NY Times data, this column is computed with a simple `mutate(case_growth = cases - lag(cases))` after sorting by date.
 
-I do not believe there is any other useful county level data source than the [NY Times github](https://github.com/nytimes/covid-19-data). It is unclear where the [John Hopkins](https://github.com/CSSEGISandData/COVID-19) county data comes from and the data files that do exist have a difficult to parse format, with the [values in different columns for different dates](https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv)).
+I have looked for alternatives to county-level data from the [NY Times github](https://github.com/nytimes/covid-19-data). I haven't found any useful sources yet. It is unclear where the [John Hopkins](https://github.com/CSSEGISandData/COVID-19) county data comes from, and the data files that do exist there have a difficult to parse format, with the [values in different columns for different dates](https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv)).
+
