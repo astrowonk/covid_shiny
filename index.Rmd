@@ -79,6 +79,8 @@ renderPlotly({
 
 
   shiny::validate(need(input$county,message="Please wait.."))
+    shiny::validate(need(county_data,message="Please wait.."))
+
 
    if (input$overplot_rolled)
   {
