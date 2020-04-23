@@ -7,6 +7,25 @@ require(ggpubr)
 require(ggplot2)
 require(plotly)
 
+get_county_nyt <- function () {
+    
+    county_data <- read_csv(url("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"))
+    county_data$date <- as.Date(county_data$date)
+    county_data <- county_data[order(county_data$date),]
+    county_data <- county_data %>% group_by(county,state) %>% mutate(case_growth = cases - lag(cases))
+    return(county_data)
+}
+
+get_virginia <- function() {
+    raw <- read_csv(url("http://www.vdh.virginia.gov/content/uploads/sites/182/2020/03/VDH-COVID-19-PublicUseDataset-Cases.csv"))
+    raw$date <- raw$`Report Date` %>%  as.Date(format="%m/%d/%Y")
+    county_data <- raw[order(raw$date),]
+    county_data <- county_data %>% rename(cases = Cases, county=Locality)
+    county_data <- county_data %>% group_by(county) %>% mutate(case_growth = cases - lag(cases))
+    county_data$state = 'Virginia'
+    return(county_data)
+    
+}
 
 plot_state <- function(state_data, my_state, roll_days) {
     plot_data <-
