@@ -85,11 +85,17 @@ renderUI({
 
 renderPlotly({
   
+  if (input$use_county_best & input$state == 'Virginia') {
+    county_data <<- county_data_virginia
+    
+  } else {
+    county_data <<- county_data_nyt
+  }
 
-shiny::validate(need(input$use_county_best,message="Please wait.."))
 shiny::validate(need(input$state,message="Please wait.."))
 shiny::validate(need(county_data,message="Please wait.."))
 shiny::validate(need(input$bins,message="Please wait.."))
+shiny::validate(need(input$county,message="Please wait.."))
 
 
    if (input$overplot_rolled)
