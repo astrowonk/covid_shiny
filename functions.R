@@ -17,7 +17,7 @@ get_county_nyt <- function () {
 }
 
 get_virginia <- function() {
-    raw <- read_csv(url("http://www.vdh.virginia.gov/content/uploads/sites/182/2020/03/VDH-COVID-19-PublicUseDataset-Cases.csv"))
+    raw <- read_csv(url("https://www.vdh.virginia.gov/content/uploads/sites/182/2020/03/VDH-COVID-19-PublicUseDataset-Cases.csv"))
     raw$date <- raw$`Report Date` %>%  as.Date(format="%m/%d/%Y")
     county_data <- raw[order(raw$date),]
     county_data <- county_data %>% rename(cases = `Total Cases`, county=Locality)
