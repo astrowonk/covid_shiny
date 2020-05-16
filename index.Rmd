@@ -19,7 +19,7 @@ source('functions.R')
 ```{r get_data, include=FALSE}
 
 county_data_nyt <<- get_county_nyt()
-#county_data_virginia <<- get_virginia()
+county_data_virginia <<- get_virginia()
 
 state_data_nyt <<- get_state_data_nyt()
 state_data_covid_tracking <<- get_state_data_covid_tracking()
@@ -49,8 +49,8 @@ inputPanel(
   sliderInput("bins", label = "Days for Rolling Average",
               min = 1, max = 14, value = 7, step = 1),
   
-  checkboxInput("overplot_rolled","Overplot Rolled Average",value=TRUE)
-    #checkboxInput("use_county_best",label="Use Direct State Data for County if available", value=TRUE)
+  checkboxInput("overplot_rolled","Overplot Rolled Average",value=TRUE),
+    checkboxInput("use_county_best",label="Use Direct State Data for County if available", value=TRUE)
   )
 
 
@@ -65,14 +65,12 @@ renderUI({
   
       selected_state <- input$state
 
-          county_data <<- county_data_nyt
-
-  # if (input$use_county_best & input$state == 'Virginia') {
-  #   county_data <<- county_data_virginia
-  #   
-  # } else {
-  #   county_data <<- county_data_nyt
-  # }
+  if (input$use_county_best & input$state == 'Virginia') {
+    county_data <<- county_data_virginia
+    
+  } else {
+    county_data <<- county_data_nyt
+  }
   
       inputPanel(
   
@@ -87,14 +85,12 @@ renderUI({
 
 renderPlotly({
   
- county_data <<- county_data_nyt
- 
-    # if (input$use_county_best & input$state == 'Virginia') {
-  #   county_data <<- county_data_virginia
-  #   
-  # } else {
-  #   county_data <<- county_data_nyt
-  # }
+  if (input$use_county_best & input$state == 'Virginia') {
+    county_data <<- county_data_virginia
+    
+  } else {
+    county_data <<- county_data_nyt
+  }
 
 shiny::validate(need(input$state,message="Please wait.."))
 shiny::validate(need(county_data,message="Please wait.."))
@@ -115,6 +111,7 @@ shiny::validate(need(input$county,message="Please wait.."))
 
 ```
 
+This text appears to be getting covered up.
 
 ### State Level
 ``` {r state plots, echo=FALSE}
