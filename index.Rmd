@@ -30,7 +30,7 @@ default_bin <- 7
 
 NYT Data Last updated at *`r max_date`*. Datasets loaded directly from [NY Times](https://github.com/nytimes/covid-19-data) for county data. State data is either NYT or [Covid Tracking](https://covidtracking.com/api).
 
-Virigina county-level data was loaded directly from the [Virginia Department of Health](http://www.vdh.virginia.gov/coronavirus/), but has been temporarily removed as the CSV file is corrupt. 
+Virigina county-level data from the [Virginia Department of Health](http://www.vdh.virginia.gov/coronavirus/) is working again. 
 
 To see bar plots themselves with rolling averages, and no overplotted line, uncheck the overplot box.
 
