@@ -29,9 +29,10 @@ get_county_nyt <- function () {
 }
 
 get_virginia <- function() {
-    #raw <- read_csv(url("https://www.vdh.virginia.gov/content/uploads/sites/182/2020/03/VDH-COVID-19-PublicUseDataset-Cases.csv"))
-    raw <- get_bad_ssl_url("https://www.vdh.virginia.gov/content/uploads/sites/182/2020/05/VDH-COVID-19-PublicUseDataset-Cases.csv")
-    raw$date <- raw$`Report Date` %>%  as.Date(format="%m/%d/%Y")
+    raw <- read_csv(url("https://data.virginia.gov/api/views/bre9-aqqr/rows.csv?accessType=DOWNLOAD&api_foundry=true"))
+    #raw <- get_bad_ssl_url("https://www.vdh.virginia.gov/content/uploads/sites/182/2020/05/VDH-COVID-19-PublicUseDataset-Cases.csv")
+    #raw$date <- raw$`Report Date` %>% as.Date()
+    raw$date <- raw$`Report Date` %>% as.Date(format="%m/%d/%Y")
     county_data <- raw[order(raw$date),]
     county_data <- county_data %>% rename(cases = `Total Cases`, county=Locality)
     county_data <- county_data %>% group_by(county) %>% mutate(case_growth = cases - lag(cases))
