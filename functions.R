@@ -29,7 +29,7 @@ get_county_nyt <- function () {
 }
 
 get_virginia <- function() {
-    raw <- read_csv(url("https://data.virginia.gov/api/views/bre9-aqqr/rows.csv?accessType=DOWNLOAD&api_foundry=true"))
+    raw <- read_csv('va_data.txt')
     #raw <- get_bad_ssl_url("https://www.vdh.virginia.gov/content/uploads/sites/182/2020/05/VDH-COVID-19-PublicUseDataset-Cases.csv")
     #raw$date <- raw$`Report Date` %>% as.Date()
     raw$date <- raw$`Report Date` %>% as.Date(format="%m/%d/%Y")
