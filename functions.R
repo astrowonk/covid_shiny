@@ -36,6 +36,10 @@ get_virginia <- function() {
     county_data <- raw[order(raw$date),]
     county_data <- county_data %>% rename(cases = `Total Cases`, county=Locality)
     county_data <- county_data %>% group_by(county) %>% mutate(case_growth = cases - lag(cases))
+    county_data <- county_data %>% group_by(county) %>% mutate(hospital_growth = Hospitalizations - lag(Hospitalizations))
+    
+    
+    
     county_data$state = 'Virginia'
     return(county_data)
     
@@ -171,6 +175,45 @@ plot_county2 <-
             theme(text = element_text(size = 12),legend.position = "bottom")
         
     }
+
+plot_county_hospital <-
+    function(county_data,
+             my_county,
+             my_state,
+             roll_days) {
+        plot_data <-
+            county_data %>% filter(county == my_county &
+                                       state == my_state) 
+        
+        plot_data <-
+            plot_data %>% mutate(
+                rolled_data_to_plot = roll_mean(
+                    hospital_growth,
+                    roll_days,
+                    na.rm = TRUE,
+                    align = 'right',
+                    fill = NA
+                )
+            ) %>% select(rolled_data_to_plot,hospital_growth,date,state,county) 
+        legend_name <- paste(roll_days,'Day Average')
+        color_vector <- c('purple')
+        names(color_vector) <- c(legend_name)
+        ggbarplot(
+            plot_data,
+            'date',
+            'hospital_growth',
+            fill = "light blue",
+            ggtheme = theme_minimal(),
+            ylab = 'New Hospitalizations',
+            xlab = 'Date',
+            
+            title = paste(my_county, my_state, sep = ", ")
+        ) + geom_line(data=plot_data,aes(x=date,y=rolled_data_to_plot,color=legend_name),size=1) + 
+            scale_color_manual(name="",values=color_vector) +
+            theme(text = element_text(size = 12),legend.position = "bottom")
+        
+    }
+
 
 get_state_data_nyt <- function() {
     state_data <-

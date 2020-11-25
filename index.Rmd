@@ -49,7 +49,7 @@ inputPanel(
   sliderInput("bins", label = "Days for Rolling Average",
               min = 1, max = 14, value = 7, step = 1),
   
-  checkboxInput("overplot_rolled","Overplot Rolled Average",value=TRUE),
+  checkboxInput("plot_hospital","Plot Hospitalization Growth by County (Virginia Only)",value=FALSE),
     checkboxInput("use_county_best",label="Use Direct State Data for County if available", value=TRUE)
   )
 
@@ -98,11 +98,11 @@ shiny::validate(need(input$bins,message="Please wait.."))
 shiny::validate(need(input$county,message="Please wait.."))
 
 
-   if (input$overplot_rolled)
+   if (input$plot_hospital)
   {
-    p <- plot_county2(county_data, input$county, input$state, input$bins)
+    p <- plot_county_hospital(county_data, input$county, input$state, input$bins)
   } else {
-    p <- plot_county_roll(county_data, input$county, input$state, input$bins)
+    p <- plot_county2(county_data, input$county, input$state, input$bins)
   }
   
   shiny::validate(need(p,message="Please wait.."))
