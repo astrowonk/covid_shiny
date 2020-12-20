@@ -126,12 +126,8 @@ renderPlotly({
   } else {
     state_data <- state_data_covid_tracking
   }
-  if (input$overplot_rolled)
-  {
+
     pp <- plot_state2(state_data, input$state, input$bins)
-  } else {
-    pp <- plot_state(state_data, input$state, input$bins)
-  }
     ggplotly(pp,height=500) %>% layout(legend = list(orientation = "h", x = 0.1, y = .8))
 
 })
