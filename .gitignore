@@ -30,3 +30,4 @@ CovidGraphMkd Public.Rproj
 va_covid.csv
 va_data.txt
 .Rproj.user
+*.ipynb
