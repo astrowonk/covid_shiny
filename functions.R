@@ -28,6 +28,27 @@ get_county_nyt <- function () {
     return(county_data)
 }
 
+
+
+
+merge_county_pop <- function (county_data,pop_data) {
+    county_data <-
+        merge(
+            county_data,
+            select(pop_data,fips,population),
+            by = 'fips',
+            all.x = TRUE
+        )
+    county_data <-
+        mutate(
+            county_data,
+            cases_per_100K = 100000 * (cases / population),
+            case_growth_per_100K = 100000 * (case_growth / population)
+        )
+    return(county_data)
+    
+}
+
 get_virginia <- function() {
     raw <- read_csv('va_data.txt')
     #raw <- get_bad_ssl_url("https://www.vdh.virginia.gov/content/uploads/sites/182/2020/05/VDH-COVID-19-PublicUseDataset-Cases.csv")
@@ -227,21 +248,21 @@ get_state_data_nyt <- function() {
     state_data <- state_data %>%
         group_by(state) %>%
         mutate(case_growth = cases - lag(cases))
-    pop_data <- read_csv('SCPRC-EST2019-18+POP-RES.csv')
-    state_data <-
-        merge(
-            state_data,
-            pop_data,
-            by.x = 'state',
-            by.y = 'NAME',
-            all.x = TRUE
-        )
-    state_data <-
-        mutate(
-            state_data,
-            cases_per_100K = 100000 * (cases / POPESTIMATE2019),
-            case_growth_per_100K = 100000 * (case_growth / POPESTIMATE2019)
-        )
+   # pop_data <- read_csv('SCPRC-EST2019-18+POP-RES.csv')
+    # state_data <-
+    #     merge(
+    #         state_data,
+    #         pop_data,
+    #         by.x = 'state',
+    #         by.y = 'NAME',
+    #         all.x = TRUE
+    #     )
+    # state_data <-
+    #     mutate(
+    #         state_data,
+    #         cases_per_100K = 100000 * (cases / POPESTIMATE2019),
+    #         case_growth_per_100K = 100000 * (case_growth / POPESTIMATE2019)
+    #     )
     state_data <- state_data[order(state_data$date), ]
     return(state_data)
 }
@@ -257,21 +278,21 @@ get_state_data_covid_tracking <- function() {
         merge(state_json, state_info, by = "state_abbr", all.x = TRUE) %>% rename(case_growth = positiveIncrease, cases =
                                                                                       positive)
     #merge population data, create new columns
-    pop_data <- read_csv('SCPRC-EST2019-18+POP-RES.csv')
-    state_json <-
-        merge(
-            state_json,
-            pop_data,
-            by.x = 'state',
-            by.y = 'NAME',
-            all.x = TRUE
-        )
-    state_json <-
-        mutate(
-            state_json,
-            cases_per_100K = 100000 * (cases / POPESTIMATE2019),
-            case_growth_per_100K = 100000 * (case_growth / POPESTIMATE2019)
-        )
+    # pop_data <- read_csv('SCPRC-EST2019-18+POP-RES.csv')
+    # state_json <-
+    #     merge(
+    #         state_json,
+    #         pop_data,
+    #         by.x = 'state',
+    #         by.y = 'NAME',
+    #         all.x = TRUE
+    #     )
+    # state_json <-
+    #     mutate(
+    #         state_json,
+    #         cases_per_100K = 100000 * (cases / POPESTIMATE2019),
+    #         case_growth_per_100K = 100000 * (case_growth / POPESTIMATE2019)
+    #     )
     state_json <- state_json[order(state_json$date), ]
     
     return(state_json)
@@ -298,4 +319,38 @@ make_state_comparison <-
         return (
             my_list %>% data.frame() %>% t() %>% data.frame() %>% data.table::setDT(keep.rownames = TRUE)
         )
+    }
+
+
+plot_county_per_capita <-
+    function(plot_data,counties,
+             roll_days) {
+ 
+        plot_data <- plot_data %>% filter(county %in% counties)
+        plot_data <- plot_data[order(plot_data$date),]
+        plot_data <-
+            plot_data %>% group_by(county) %>%  mutate(
+                rolled_average_case_count = roll_mean(
+                    case_growth_per_100K,
+                    roll_days,
+                    na.rm = TRUE,
+                    align = 'right',
+                    fill = NA
+                )
+            ) %>% select(rolled_average_case_count,case_growth,date,state,county,case_growth_per_100K) 
+        legend_name <- paste(roll_days,'Day Average')
+        color_vector <- c('purple')
+        names(color_vector) <- c(legend_name)
+        ggline(
+            plot_data,
+            'date',
+            'rolled_average_case_count',
+            ggtheme = theme_minimal(),
+            ylab = 'New Cases per 100K',
+            xlab = 'Date',color='county',
+            plot_type='l',
+            
+            title = 'mystate'
+        ) 
+        
     }
