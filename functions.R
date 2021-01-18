@@ -45,6 +45,7 @@ merge_county_pop <- function (county_data,pop_data) {
             cases_per_100K = 100000 * (cases / population),
             case_growth_per_100K = 100000 * (case_growth / population)
         )
+    county_data <- mutate(county_data,state_county = paste(county,state))
     return(county_data)
     
 }
@@ -326,10 +327,10 @@ plot_county_per_capita <-
     function(plot_data,counties,
              roll_days) {
  
-        plot_data <- plot_data %>% filter(county %in% counties)
+        plot_data <- plot_data %>% filter(state_county %in% counties)
         plot_data <- plot_data[order(plot_data$date),]
         plot_data <-
-            plot_data %>% group_by(county) %>%  mutate(
+            plot_data %>% group_by(state_county) %>%  mutate(
                 rolled_average_case_count = roll_mean(
                     case_growth_per_100K,
                     roll_days,
@@ -337,7 +338,7 @@ plot_county_per_capita <-
                     align = 'right',
                     fill = NA
                 )
-            ) %>% select(rolled_average_case_count,case_growth,date,state,county,case_growth_per_100K) 
+            ) %>% select(rolled_average_case_count,case_growth,date,state_county,case_growth_per_100K) 
         legend_name <- paste(roll_days,'Day Average')
         color_vector <- c('purple')
         names(color_vector) <- c(legend_name)
@@ -347,7 +348,7 @@ plot_county_per_capita <-
             'rolled_average_case_count',
             ggtheme = theme_minimal(),
             ylab = 'New Cases per 100K',
-            xlab = 'Date',color='county',
+            xlab = 'Date',color='state_county',
             plot_type='l',
             
             title = 'mystate'
