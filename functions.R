@@ -21,7 +21,7 @@ get_bad_ssl_url <- function(my_url) {
 
 get_county_nyt <- function () {
     
-    county_data <- read_csv(url("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"))
+    county_data <- read_csv("data_cache/us-counties.csv")
     county_data$date <- as.Date(county_data$date)
     county_data <- county_data[order(county_data$date),]
     county_data <- county_data %>% group_by(county,state) %>% mutate(case_growth = cases - lag(cases))
@@ -239,11 +239,7 @@ plot_county_hospital <-
 
 get_state_data_nyt <- function() {
     state_data <-
-        read_csv(
-            url(
-                "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv"
-            )
-        )
+        read_csv("data_cache/us-states.csv")
     state_data$date <- state_data$date %>% as.Date()
     state_data <- state_data[order(state_data$date), ]
     state_data <- state_data %>%
@@ -269,8 +265,7 @@ get_state_data_nyt <- function() {
 }
 
 get_state_data_covid_tracking <- function() {
-    state_json <-
-        fromJSON(txt = url("https://covidtracking.com/api/states/daily"))
+    state_json <-fromJSON("data_cache/daily.json")
     state_json$date <- as.Date(state_json$dateChecked)
     state_json <- state_json %>% rename(state_abbr = state)
     state_info <-
