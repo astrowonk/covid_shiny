@@ -44,7 +44,7 @@ To see bar plots themselves with rolling averages, and no overplotted line, unch
 
 inputPanel(
   selectInput("state", label = "State",
-              choices = state_data_nyt$state %>% unique %>% sort, selected = 'Virginia'),
+              choices = state_data_nyt$state %>% unique %>% sort, selected = 'Virginia',multiple=TRUE),
   
   sliderInput("bins", label = "Days for Rolling Average",
               min = 1, max = 14, value = 7, step = 1),
@@ -63,9 +63,9 @@ inputPanel(
 
 renderUI({
   
-      selected_state <- input$state
+      selected_state <- input$state[1]
 
-  if (input$use_county_best & input$state == 'Virginia') {
+  if (input$use_county_best & input$state[1] == 'Virginia') {
     county_data <<- county_data_virginia
     
   } else {
@@ -85,7 +85,7 @@ renderUI({
 
 renderPlotly({
   
-  if (input$use_county_best & input$state == 'Virginia') {
+  if (input$use_county_best & input$state[1] == 'Virginia') {
     county_data <<- county_data_virginia
     
   } else {
@@ -100,9 +100,9 @@ shiny::validate(need(input$county,message="Please wait.."))
 
    if (input$plot_hospital)
   {
-    p <- plot_county_hospital(county_data, input$county, input$state, input$bins)
+    p <- plot_county_hospital(county_data, input$county, input$state[1], input$bins)
   } else {
-    p <- plot_county2(county_data, input$county, input$state, input$bins)
+    p <- plot_county2(county_data, input$county, input$state[1], input$bins)
   }
   
   shiny::validate(need(p,message="Please wait.."))
@@ -117,7 +117,7 @@ This text appears to be getting covered up.
 ``` {r state plots, echo=FALSE}
 
 inputPanel(
-  selectInput("data_source", label = "State Data Source",
+  selectInput("data_source", label = "State Source",
               choices = c("New York Times"="nyt","Covid Tracking"='covid_tracking'), selected = 'nyt'))
 
 renderPlotly({
@@ -126,9 +126,17 @@ renderPlotly({
   } else {
     state_data <- state_data_covid_tracking
   }
+    
+    
+    if (length(input$state) > 1) {
+          pp <- plot_compare_states(state_data, input$state, input$bins)
 
-    pp <- plot_state2(state_data, input$state, input$bins)
-    ggplotly(pp,height=500) %>% layout(legend = list(orientation = "h", x = 0.1, y = .8))
+    } else {
+      pp <- plot_state2(state_data, input$state, input$bins)
+
+    }
+  
+    ggplotly(pp,height=500) %>% layout(legend = list(orientation = "v", x = 0.1, y = .8))
 
 })
 
