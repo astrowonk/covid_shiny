@@ -32,7 +32,7 @@ NYT Data Last updated at *`r max_date`*. Datasets loaded directly from [NY Times
 
 Virigina county-level data from the [Virginia Department of Health](http://www.vdh.virginia.gov/coronavirus/) is working again. 
 
-To see bar plots themselves with rolling averages, and no overplotted line, uncheck the overplot box.
+You can select multiple states for the State Level view. Only the first state will be used for the county plots.
 
 # Covid 19 Plots {.tabset}
 
