@@ -45,7 +45,7 @@ merge_county_pop <- function (county_data,pop_data) {
             cases_per_100K = 100000 * (cases / population),
             case_growth_per_100K = 100000 * (case_growth / population)
         )
-    county_data <- mutate(county_data,state_county = paste(county,state))
+    county_data <- mutate(county_data,state_county = paste(county,state,sep=", "))
     return(county_data)
     
 }
@@ -166,11 +166,13 @@ plot_county2 <-
              my_state,
              roll_days) {
         plot_data <-
-            county_data %>% filter(county == my_county &
+            county_data %>% filter(state_county == my_county &
                                        state == my_state) 
         
+        plot_data <- plot_data[order(plot_data$date), ]
+        
         plot_data <-
-            plot_data %>% mutate(
+            plot_data %>% group_by (state_county) %>%  mutate(
                 rolled_average_case_count = roll_mean(
                     case_growth,
                     roll_days,

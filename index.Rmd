@@ -20,7 +20,9 @@ source('functions.R')
 
 county_data_nyt <<- get_county_nyt()
 county_data_virginia <<- get_virginia()
+county_pop <<- read_csv('2019_county_populations.csv')
 
+county_data_nyt <<- merge_county_pop(county_data_nyt,county_pop)
 state_data_nyt <<- get_state_data_nyt()
 state_data_covid_tracking <<- get_state_data_covid_tracking()
 
@@ -66,7 +68,7 @@ renderUI({
       selected_state <- input$state[1]
 
   if (input$use_county_best & input$state[1] == 'Virginia') {
-    county_data <<- county_data_virginia
+    county_data <<- county_data_nyt
     
   } else {
     county_data <<- county_data_nyt
@@ -76,7 +78,7 @@ renderUI({
   
   
   selectInput("county", label = "County",
-              choices = (county_data %>% filter(state == selected_state))$county %>% unique %>% sort, selected = 'Henrico')
+              choices = (county_data %>% filter(state %in% input$state))$state_county %>% unique %>% sort, selected = 'Henrico, Virginia',multiple=TRUE)
   
 
 )
@@ -86,8 +88,7 @@ renderUI({
 renderPlotly({
   
   if (input$use_county_best & input$state[1] == 'Virginia') {
-    county_data <<- county_data_virginia
-    
+    county_data <<- county_data_nyt
   } else {
     county_data <<- county_data_nyt
   }
@@ -101,12 +102,14 @@ shiny::validate(need(input$county,message="Please wait.."))
    if (input$plot_hospital)
   {
     p <- plot_county_hospital(county_data, input$county, input$state[1], input$bins)
-  } else {
+  } else if (length(input$county) == 1) {
     p <- plot_county2(county_data, input$county, input$state[1], input$bins)
+  } else if (length(input$county) > 1) {
+    p <- plot_county_per_capita(county_data,input$county,input$bins)
   }
   
   shiny::validate(need(p,message="Please wait.."))
-  ggplotly(p,height=500) %>% layout(legend = list(orientation = "h", x = 0.1, y = .8))
+  ggplotly(p,height=500) %>% layout(legend = list(orientation = "v", x = 0.1, y = .8))
   })
 
 ```
