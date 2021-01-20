@@ -20,7 +20,9 @@ source('functions.R')
 
 county_data_nyt <<- get_county_nyt()
 county_data_virginia <<- get_virginia()
+county_pop <<- read_csv('2019_county_populations.csv')
 
+county_data_nyt <<- merge_county_pop(county_data_nyt,county_pop)
 state_data_nyt <<- get_state_data_nyt()
 state_data_covid_tracking <<- get_state_data_covid_tracking()
 
@@ -30,9 +32,11 @@ default_bin <- 7
 
 NYT Data Last updated at *`r max_date`*. Datasets loaded directly from [NY Times](https://github.com/nytimes/covid-19-data) for county data. State data is either NYT or [Covid Tracking](https://covidtracking.com/api).
 
-Virigina county-level data from the [Virginia Department of Health](http://www.vdh.virginia.gov/coronavirus/) is working again. 
+For simplicity, I've turned off using county-level data from the [Virginia Department of Health](http://www.vdh.virginia.gov/coronavirus/). The NY Times data set has matched this exactly for quite some time.
 
-You can select multiple states for the State Level view. Only the first state will be used for the county plots.
+You can select multiple states for the State Level view, and county view. Multiple states must be picked first to populate the list of County,State pairs.
+
+
 
 # Covid 19 Plots {.tabset}
 
@@ -47,10 +51,10 @@ inputPanel(
               choices = state_data_nyt$state %>% unique %>% sort, selected = 'Virginia',multiple=TRUE),
   
   sliderInput("bins", label = "Days for Rolling Average",
-              min = 1, max = 14, value = 7, step = 1),
+              min = 1, max = 14, value = 7, step = 1)
   
-  checkboxInput("plot_hospital","Plot Hospitalization Growth by County (Virginia Only)",value=FALSE),
-    checkboxInput("use_county_best",label="Use Direct State Data for County if available", value=TRUE)
+  
+ 
   )
 
 
@@ -65,18 +69,15 @@ renderUI({
   
       selected_state <- input$state[1]
 
-  if (input$use_county_best & input$state[1] == 'Virginia') {
-    county_data <<- county_data_virginia
-    
-  } else {
+  
     county_data <<- county_data_nyt
-  }
+  
   
       inputPanel(
   
   
   selectInput("county", label = "County",
-              choices = (county_data %>% filter(state == selected_state))$county %>% unique %>% sort, selected = 'Henrico')
+              choices = (county_data %>% filter(state %in% input$state))$state_county %>% unique %>% sort, selected = 'Henrico, Virginia',multiple=TRUE)
   
 
 )
@@ -85,12 +86,9 @@ renderUI({
 
 renderPlotly({
   
-  if (input$use_county_best & input$state[1] == 'Virginia') {
-    county_data <<- county_data_virginia
-    
-  } else {
+
     county_data <<- county_data_nyt
-  }
+
 
 shiny::validate(need(input$state,message="Please wait.."))
 shiny::validate(need(county_data,message="Please wait.."))
@@ -98,15 +96,14 @@ shiny::validate(need(input$bins,message="Please wait.."))
 shiny::validate(need(input$county,message="Please wait.."))
 
 
-   if (input$plot_hospital)
-  {
-    p <- plot_county_hospital(county_data, input$county, input$state[1], input$bins)
-  } else {
+  if (length(input$county) == 1) {
     p <- plot_county2(county_data, input$county, input$state[1], input$bins)
+  } else if (length(input$county) > 1) {
+    p <- plot_county_per_capita(county_data,input$county,input$bins)
   }
   
   shiny::validate(need(p,message="Please wait.."))
-  ggplotly(p,height=500) %>% layout(legend = list(orientation = "h", x = 0.1, y = .8))
+  ggplotly(p,height=500) %>% layout(legend = list(orientation = "v", x = 0.1, y = .8))
   })
 
 ```
@@ -148,5 +145,9 @@ Covid Tracking and the New York Times have significantly different total counts 
 
 Covid Tracking includes a `positiveIncrease` column. For the NY Times data, this column is computed with a simple `mutate(case_growth = cases - lag(cases))` after sorting by date.
 
-I have looked for alternatives to county-level data from the [NY Times github](https://github.com/nytimes/covid-19-data). I haven't found any useful sources yet. It is unclear where the [John Hopkins](https://github.com/CSSEGISandData/COVID-19) county data comes from, and the data files that do exist there have a difficult to parse format, with the [values in different columns for different dates](https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv)). If I can find another county data source, I will add it.
+I have looked for alternatives to county-level data from the [NY Times github](https://github.com/nytimes/covid-19-data). I haven't found any useful sources yet. It is unclear where the [John Hopkins](https://github.com/CSSEGISandData/COVID-19) county data comes from, and the data files that do exist there have a difficult to parse format, with the [values in different columns for different dates](https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv)). If I can find another county data source, I will try to add it.
+
+For state population I'm using POPESTIMATE19 from various CSV files available from the US Census. [US Census](https://www.census.gov/newsroom/press-kits/2019/national-state-estimates.html)
+
+For county level I resolved UTF-8 issues (thanks BBedit!) with this [data set with FIPS codes](https://github.com/prairie-guy/2019-State-and-County-Population-with-FIPS-key) and use that for merging.
 

@@ -6,18 +6,8 @@ require(RcppRoll)
 require(ggpubr)
 require(ggplot2)
 require(plotly)
-require(httr)
 
-get_bad_ssl_url <- function(my_url) {
-    
-    result <- httr::GET(
-        url    = my_url,
-        config = httr::config(ssl_verifypeer = FALSE)
-    )
-    bin <- content(result, "raw")
-    writeBin(bin, "va_data.txt")
-    return(read_csv('va_data.txt'))
-}
+
 
 get_county_nyt <- function () {
     
@@ -45,15 +35,13 @@ merge_county_pop <- function (county_data,pop_data) {
             cases_per_100K = 100000 * (cases / population),
             case_growth_per_100K = 100000 * (case_growth / population)
         )
-    county_data <- mutate(county_data,state_county = paste(county,state))
+    county_data <- mutate(county_data,state_county = paste(county,state,sep=", "))
     return(county_data)
     
 }
 
 get_virginia <- function() {
     raw <- read_csv('data_cache/va_data.txt')
-    #raw <- get_bad_ssl_url("https://www.vdh.virginia.gov/content/uploads/sites/182/2020/05/VDH-COVID-19-PublicUseDataset-Cases.csv")
-    #raw$date <- raw$`Report Date` %>% as.Date()
     raw$date <- raw$`Report Date` %>% as.Date(format="%m/%d/%Y")
     county_data <- raw[order(raw$date),]
     county_data <- county_data %>% rename(cases = `Total Cases`, county=Locality)
@@ -166,11 +154,13 @@ plot_county2 <-
              my_state,
              roll_days) {
         plot_data <-
-            county_data %>% filter(county == my_county &
+            county_data %>% filter(state_county == my_county &
                                        state == my_state) 
         
+        plot_data <- plot_data[order(plot_data$date), ]
+        
         plot_data <-
-            plot_data %>% mutate(
+            plot_data %>% group_by (state_county) %>%  mutate(
                 rolled_average_case_count = roll_mean(
                     case_growth,
                     roll_days,
