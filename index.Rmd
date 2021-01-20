@@ -32,9 +32,11 @@ default_bin <- 7
 
 NYT Data Last updated at *`r max_date`*. Datasets loaded directly from [NY Times](https://github.com/nytimes/covid-19-data) for county data. State data is either NYT or [Covid Tracking](https://covidtracking.com/api).
 
-Virigina county-level data from the [Virginia Department of Health](http://www.vdh.virginia.gov/coronavirus/) is working again. 
+For simplicity, I've turned off using county-level data from the [Virginia Department of Health](http://www.vdh.virginia.gov/coronavirus/). The NY Times data set has matched this exactly for quite some time.
 
-You can select multiple states for the State Level view. Only the first state will be used for the county plots.
+You can select multiple states for the State Level view, and county view. Multiple states must be picked first to populate the list of County,State pairs.
+
+
 
 # Covid 19 Plots {.tabset}
 
@@ -143,5 +145,9 @@ Covid Tracking and the New York Times have significantly different total counts 
 
 Covid Tracking includes a `positiveIncrease` column. For the NY Times data, this column is computed with a simple `mutate(case_growth = cases - lag(cases))` after sorting by date.
 
-I have looked for alternatives to county-level data from the [NY Times github](https://github.com/nytimes/covid-19-data). I haven't found any useful sources yet. It is unclear where the [John Hopkins](https://github.com/CSSEGISandData/COVID-19) county data comes from, and the data files that do exist there have a difficult to parse format, with the [values in different columns for different dates](https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv)). If I can find another county data source, I will add it.
+I have looked for alternatives to county-level data from the [NY Times github](https://github.com/nytimes/covid-19-data). I haven't found any useful sources yet. It is unclear where the [John Hopkins](https://github.com/CSSEGISandData/COVID-19) county data comes from, and the data files that do exist there have a difficult to parse format, with the [values in different columns for different dates](https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv)). If I can find another county data source, I will try to add it.
+
+For state population I'm using POPESTIMATE19 from various CSV files available from the US Census. [US Census](https://www.census.gov/newsroom/press-kits/2019/national-state-estimates.html)
+
+For county level I resolved UTF-8 issues (thanks BBedit!) with this [data set with FIPS codes](https://github.com/prairie-guy/2019-State-and-County-Population-with-FIPS-key) and use that for merging.
 
