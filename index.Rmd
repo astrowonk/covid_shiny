@@ -49,10 +49,10 @@ inputPanel(
               choices = state_data_nyt$state %>% unique %>% sort, selected = 'Virginia',multiple=TRUE),
   
   sliderInput("bins", label = "Days for Rolling Average",
-              min = 1, max = 14, value = 7, step = 1),
+              min = 1, max = 14, value = 7, step = 1)
   
-  checkboxInput("plot_hospital","Plot Hospitalization Growth by County (Virginia Only)",value=FALSE),
-    checkboxInput("use_county_best",label="Use Direct State Data for County if available", value=TRUE)
+  
+ 
   )
 
 
@@ -67,12 +67,9 @@ renderUI({
   
       selected_state <- input$state[1]
 
-  if (input$use_county_best & input$state[1] == 'Virginia') {
+  
     county_data <<- county_data_nyt
-    
-  } else {
-    county_data <<- county_data_nyt
-  }
+  
   
       inputPanel(
   
@@ -87,11 +84,9 @@ renderUI({
 
 renderPlotly({
   
-  if (input$use_county_best & input$state[1] == 'Virginia') {
+
     county_data <<- county_data_nyt
-  } else {
-    county_data <<- county_data_nyt
-  }
+
 
 shiny::validate(need(input$state,message="Please wait.."))
 shiny::validate(need(county_data,message="Please wait.."))
@@ -99,10 +94,7 @@ shiny::validate(need(input$bins,message="Please wait.."))
 shiny::validate(need(input$county,message="Please wait.."))
 
 
-   if (input$plot_hospital)
-  {
-    p <- plot_county_hospital(county_data, input$county, input$state[1], input$bins)
-  } else if (length(input$county) == 1) {
+  if (length(input$county) == 1) {
     p <- plot_county2(county_data, input$county, input$state[1], input$bins)
   } else if (length(input$county) > 1) {
     p <- plot_county_per_capita(county_data,input$county,input$bins)
