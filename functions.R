@@ -181,7 +181,7 @@ plot_county2 <-
             ylab = 'New Cases',
             xlab = 'Date',
             
-            title = paste(my_county, my_state, sep = ", ")
+            title = my_county
         ) + geom_line(data=plot_data,aes(x=date,y=rolled_average_case_count,color=legend_name),size=1) + 
             scale_color_manual(name="",values=color_vector) +
             theme(text = element_text(size = 12),legend.position = "bottom")

@@ -1,5 +1,5 @@
 ---
-title: "New Covid-19 Cases by County"
+title: "Covid-19 Case Growth"
 output: html_document
 runtime: shiny
 ---
