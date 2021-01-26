@@ -55,31 +55,6 @@ get_virginia <- function() {
     
 }
 
-plot_state <- function(state_data, my_state, roll_days) {
-    plot_data <-
-        state_data %>% filter(state == my_state) %>% select (case_growth, state, date) %>% na.omit
-    plot_data <- plot_data[order(plot_data$date), ]
-    plot_data <-
-        plot_data %>% mutate(
-            rolled_average_case_count = roll_mean(
-                case_growth,
-                roll_days,
-                na.rm = TRUE,
-                align = 'right',
-                fill = NA
-            )
-        ) %>% select(date, rolled_average_case_count) %>% na.omit
-    ggbarplot(
-        plot_data,
-        'date',
-        'rolled_average_case_count',
-        fill = "dark blue",
-        ggtheme = theme_minimal(),
-        ylab = 'New Cases',
-        xlab = 'Date',
-        title = paste("All", my_state)
-    ) + theme(text = element_text(size = 12))
-}
 
 plot_state2 <- function(state_data, my_state, roll_days) {
     plot_data <-
@@ -115,38 +90,6 @@ plot_state2 <- function(state_data, my_state, roll_days) {
 }
 
 
-
-plot_county_roll <-
-    function(county_data,
-             my_county,
-             my_state,
-             roll_days) {
-        plot_data <-
-            county_data %>% filter(county == my_county &
-                                       state == my_state)
-        
-        plot_data <-
-            plot_data %>% mutate(
-                rolled_average_case_count = roll_mean(
-                    case_growth,
-                    roll_days,
-                    na.rm = TRUE,
-                    align = 'right',
-                    fill = NA
-                )
-            ) %>% select(rolled_average_case_count,date) %>% na.omit()
-        
-        ggbarplot(
-            plot_data,
-            'date',
-            'rolled_average_case_count',
-            fill = "light blue",
-            ggtheme = theme_minimal(),
-            ylab = 'New Cases',
-            xlab = 'Date',
-            title = paste(my_county, my_state, sep = ", ")
-        ) + theme(text = element_text(size = 12),legend.position = 'bottom')
-    }
 
 plot_county2 <-
     function(county_data,
@@ -288,29 +231,6 @@ get_state_data_covid_tracking <- function() {
     
     return(state_json)
 }
-
-make_state_comparison <-
-    function(state_data, tail_days, rounding_days) {
-        my_list <- c()
-        state_data <-
-            state_data %>% group_by(state) %>% mutate(case_growth_rolled_100K = roll_meanr(case_growth_per_100K, rounding_days)) %>% select(state, case_growth_rolled_100K, cases_per_100K, date) %>% na.omit()
-        for (my_state in unique(state_data$state)) {
-            my_data <-
-                filter(state_data, state == my_state) %>% tail(tail_days)
-            out <-
-                lm(
-                    case_growth_rolled_100K ~ date,
-                    my_data %>% select(case_growth_rolled_100K, date)
-                ) %>% na.omit()
-            my_list[[my_state]] <-
-                c(out$coefficients['date'],
-                  tail(my_data$case_growth_rolled_100K, 1))
-            
-        }
-        return (
-            my_list %>% data.frame() %>% t() %>% data.frame() %>% data.table::setDT(keep.rownames = TRUE)
-        )
-    }
 
 
 plot_county_per_capita <-
